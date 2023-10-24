@@ -56,15 +56,15 @@ unsigned __int64 getModuleBasePEB(const char* moduleName)
 unsigned __int64 getModuleExport(unsigned __int64 modBase, const char* exportName)
 {
 	PIMAGE_DOS_HEADER dosHeader =	nullptr;
-	PIMAGE_NT_HEADERS ntHeader	=	nullptr;
+	PIMAGE_NT_HEADERS ntHeader  =	nullptr;
 
-	dosHeader	= (PIMAGE_DOS_HEADER)modBase;
-	ntHeader	= (PIMAGE_NT_HEADERS)(modBase + dosHeader->e_lfanew);
+	dosHeader = (PIMAGE_DOS_HEADER)modBase;
+	ntHeader  = (PIMAGE_NT_HEADERS)(modBase + dosHeader->e_lfanew);
 
 	// Now we need to get the export table
 	// First we get the Relative Virtual Address
-	DWORD						exportRVA		=	ntHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
-	PIMAGE_EXPORT_DIRECTORY		exportTable		=	(PIMAGE_EXPORT_DIRECTORY)(modBase + exportRVA);
+	DWORD			    exportRVA	  =	ntHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
+	PIMAGE_EXPORT_DIRECTORY	    exportTable	  =	(PIMAGE_EXPORT_DIRECTORY)(modBase + exportRVA);
 
 	/* 
 		DWORD   AddressOfFunctions;     // RVA from base of image
@@ -73,13 +73,13 @@ unsigned __int64 getModuleExport(unsigned __int64 modBase, const char* exportNam
 	*/
 
 	DWORD* functionTable	= (DWORD*)(modBase + exportTable->AddressOfFunctions);
-	DWORD*	nameTable		= (DWORD*)(modBase + exportTable->AddressOfNames);
+	DWORD*	nameTable	= (DWORD*)(modBase + exportTable->AddressOfNames);
 	WORD*	ordinalTable	= (WORD*)(modBase + exportTable->AddressOfNameOrdinals);
 
 
 	for (int i = 0; i < exportTable->NumberOfNames; i++) 
 	{
-		char*			  funcName	= (char*)(modBase + nameTable[i]);
+		char*		  funcName = (char*)(modBase + nameTable[i]);
 		unsigned __int64  func_ptr = modBase + functionTable[ordinalTable[i]];
 
 		if (!_strcmpi(funcName, exportName)) 
